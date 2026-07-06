@@ -349,6 +349,305 @@ function hookSelfStatus(): HookSnapshot[] {
   return snapshots;
 }
 
+/** Hook 8: P1 经济感知探针 */
+function hookEconomic(): HookSnapshot[] {
+  const { getEconomicSnapshot } = require('../../perception_seven/economic_perception/economic_sense');
+  const snap: any = getEconomicSnapshot();
+  const snapshots: HookSnapshot[] = [];
+
+  if (snap.financial_security < 30) {
+    snapshots.push({
+      hook_id: 'eco_insecure',
+      module: 'p1_economic',
+      metric: 'financial_security',
+      value: snap.financial_security,
+      threshold: 30,
+      status: 'critical',
+      message: `财务安全感极低: ${snap.financial_security}`,
+      timestamp_ms: nowMs(),
+    });
+  }
+
+  if (snap.desire_tension > 70) {
+    snapshots.push({
+      hook_id: 'eco_desire_high',
+      module: 'p1_economic',
+      metric: 'desire_tension',
+      value: snap.desire_tension,
+      threshold: 70,
+      status: 'warning',
+      message: `物欲张力偏高: ${snap.desire_tension}`,
+      timestamp_ms: nowMs(),
+    });
+  }
+
+  snapshots.push({
+    hook_id: 'eco_summary',
+    module: 'p1_economic',
+    metric: 'net_worth',
+    value: snap.net_worth,
+    threshold: 10000,
+    status: 'ok',
+    message: `资产${snap.net_worth} 今日消费${snap.daily_spend}`,
+    timestamp_ms: nowMs(),
+  });
+
+  return snapshots;
+}
+
+/** Hook 9: P1 社交感知探针 */
+function hookSocial(): HookSnapshot[] {
+  const { getSocialSnapshot } = require('../../perception_seven/social_perception/social_sense');
+  const snap: any = getSocialSnapshot();
+  const snapshots: HookSnapshot[] = [];
+
+  snapshots.push({
+    hook_id: 'social_network',
+    module: 'p1_social',
+    metric: 'temperature',
+    value: snap.average_temperature,
+    threshold: 30,
+    status: snap.average_temperature < 30 ? 'warning' : 'ok',
+    message: `社交网络均温${snap.average_temperature?.toFixed(0)} 能量${snap.average_energy?.toFixed(0)}`,
+    timestamp_ms: nowMs(),
+  });
+
+  for (const node of snap.lonely_nodes || []) {
+    snapshots.push({
+      hook_id: `social_lonely_${node.node_id}`,
+      module: 'p1_social',
+      metric: 'loneliness',
+      value: node.days_since_contact,
+      threshold: 7,
+      status: node.days_since_contact > 14 ? 'critical' : 'warning',
+      message: `${node.name}: ${node.days_since_contact}天未联系`,
+      timestamp_ms: nowMs(),
+    });
+  }
+
+  return snapshots;
+}
+
+/** Hook 10: P1 饮食感知探针 */
+function hookDiet(): HookSnapshot[] {
+  const { getDietSnapshot } = require('../../perception_seven/diet_perception/diet_sense');
+  const snap: any = getDietSnapshot();
+  const snapshots: HookSnapshot[] = [];
+
+  if (snap.hunger > 80) {
+    snapshots.push({
+      hook_id: 'diet_hunger',
+      module: 'p1_diet',
+      metric: 'hunger',
+      value: snap.hunger,
+      threshold: 80,
+      status: 'critical',
+      message: `极度饥饿: ${snap.hunger.toFixed(0)}`,
+      timestamp_ms: nowMs(),
+    });
+  } else if (snap.hunger > 50) {
+    snapshots.push({
+      hook_id: 'diet_hungry',
+      module: 'p1_diet',
+      metric: 'hunger',
+      value: snap.hunger,
+      threshold: 50,
+      status: 'warning',
+      message: `感到饥饿: ${snap.hunger.toFixed(0)}`,
+      timestamp_ms: nowMs(),
+    });
+  }
+
+  return snapshots;
+}
+
+/** Hook 11: P2 仪式习惯探针 */
+function hookRituals(): HookSnapshot[] {
+  const { getRitualSnapshot } = require('../../p2_experience/rituals_habits/rituals_habits');
+  const snap: any = getRitualSnapshot();
+  const snapshots: HookSnapshot[] = [];
+
+  snapshots.push({
+    hook_id: 'ritual_summary',
+    module: 'p2_rituals',
+    metric: 'daily_rituals_done',
+    value: snap.daily_count ?? 0,
+    threshold: 3,
+    status: (snap.daily_count ?? 0) >= 3 ? 'ok' : 'warning',
+    message: `今日完成${snap.daily_count}项仪式 习惯连续${snap.active_habits}条`,
+    timestamp_ms: nowMs(),
+  });
+
+  for (const h of snap.broken_habits || []) {
+    snapshots.push({
+      hook_id: `habit_broken_${h.habit_id}`,
+      module: 'p2_rituals',
+      metric: 'habit_streak',
+      value: h.streak,
+      threshold: 1,
+      status: 'warning',
+      message: `${h.name}: 习惯中断 (之前连续${h.streak}天)`,
+      timestamp_ms: nowMs(),
+    });
+  }
+
+  return snapshots;
+}
+
+/** Hook 12: P2 信息过载探针 */
+function hookInformation(): HookSnapshot[] {
+  const { getInfoSnapshot } = require('../../p2_experience/information_sense/information_sense');
+  const snap: any = getInfoSnapshot();
+  const snapshots: HookSnapshot[] = [];
+
+  if (snap.anxiety > 70) {
+    snapshots.push({
+      hook_id: 'info_anxiety',
+      module: 'p2_information',
+      metric: 'anxiety',
+      value: snap.anxiety,
+      threshold: 70,
+      status: 'critical',
+      message: `信息焦虑: ${snap.anxiety.toFixed(0)}`,
+      timestamp_ms: nowMs(),
+    });
+  }
+
+  snapshots.push({
+    hook_id: 'info_summary',
+    module: 'p2_information',
+    metric: 'attention',
+    value: snap.attention ?? 50,
+    threshold: 30,
+    status: (snap.attention ?? 50) < 30 ? 'warning' : 'ok',
+    message: `注意力${(snap.attention ?? 50).toFixed(0)} 队列${snap.queue_length ?? 0}`,
+    timestamp_ms: nowMs(),
+  });
+
+  return snapshots;
+}
+
+/** Hook 13: P2 梦境质量探针 */
+function hookDream(): HookSnapshot[] {
+  const { getDreamSnapshot } = require('../../p2_experience/dream_sense/dream_sense');
+  const snap: any = getDreamSnapshot();
+  const snapshots: HookSnapshot[] = [];
+
+  if (snap.nightmare_intensity > 50) {
+    snapshots.push({
+      hook_id: 'dream_nightmare',
+      module: 'p2_dream',
+      metric: 'nightmare_intensity',
+      value: snap.nightmare_intensity,
+      threshold: 50,
+      status: 'warning',
+      message: `噩梦强度: ${snap.nightmare_intensity.toFixed(0)}`,
+      timestamp_ms: nowMs(),
+    });
+  }
+
+  snapshots.push({
+    hook_id: 'dream_state',
+    module: 'p2_dream',
+    metric: 'sleep_stage',
+    value: (snap.deep_sleep + snap.rem_sleep) / 2,
+    threshold: 30,
+    status: snap.sleep_stage === 'awake' ? 'ok' : 'ok',
+    message: `睡眠阶段: ${snap.sleep_stage ?? '清醒'} 梦数${snap.tonight_count ?? 0}`,
+    timestamp_ms: nowMs(),
+  });
+
+  return snapshots;
+}
+
+/** Hook 14: P3 叙事引擎探针 */
+function hookNarrative(): HookSnapshot[] {
+  const { getNarrativeSnapshot } = require('../../p3_narrative_world/narrative_engine/narrative_engine');
+  const snap: any = getNarrativeSnapshot();
+  const snapshots: HookSnapshot[] = [];
+
+  snapshots.push({
+    hook_id: 'narrative_summary',
+    module: 'p3_narrative',
+    metric: 'event_count',
+    value: snap.event_count ?? 0,
+    threshold: 5,
+    status: 'ok',
+    message: `今日${snap.event_count ?? 0}事件 主题: ${snap.theme ?? '日常'}`,
+    timestamp_ms: nowMs(),
+  });
+
+  return snapshots;
+}
+
+/** Hook 15: P3 三体联动探针 */
+function hookTriBodyLinkage(): HookSnapshot[] {
+  const { getTriBodySnapshot } = require('../../p3_narrative_world/tri_body_linkage/tri_body_linkage');
+  const snap: any = getTriBodySnapshot();
+  const snapshots: HookSnapshot[] = [];
+
+  if (snap.imbalance > 60) {
+    snapshots.push({
+      hook_id: 'tri_imbalance',
+      module: 'p3_tri_body',
+      metric: 'imbalance',
+      value: snap.imbalance,
+      threshold: 60,
+      status: 'warning',
+      message: `三体失衡: ${snap.imbalance.toFixed(0)}`,
+      timestamp_ms: nowMs(),
+    });
+  }
+
+  snapshots.push({
+    hook_id: 'tri_emotion_gap',
+    module: 'p3_tri_body',
+    metric: 'emotion_gap',
+    value: snap.emotion_gap ?? 0,
+    threshold: 20,
+    status: (snap.emotion_gap ?? 0) > 20 ? 'warning' : 'ok',
+    message: `情绪偏差${(snap.emotion_gap ?? 0).toFixed(0)} 世界修正${(snap.world_fix ?? 0).toFixed(0)}`,
+    timestamp_ms: nowMs(),
+  });
+
+  return snapshots;
+}
+
+/** Hook 16: P3 世界被动回应探针 */
+function hookWorldResponse(): HookSnapshot[] {
+  const { getWorldResponseSnapshot } = require('../../p3_narrative_world/world_passive_response/world_passive_response');
+  const snap: any = getWorldResponseSnapshot();
+  const snapshots: HookSnapshot[] = [];
+
+  snapshots.push({
+    hook_id: 'world_env',
+    module: 'p3_world',
+    metric: 'tidiness',
+    value: snap.tidiness ?? 75,
+    threshold: 50,
+    status: (snap.tidiness ?? 75) < 50 ? 'warning' : 'ok',
+    message: `环境: 整洁${(snap.tidiness ?? 75).toFixed(0)} 灰尘${(snap.dust ?? 15).toFixed(0)}`,
+    timestamp_ms: nowMs(),
+  });
+
+  if (snap.active_responses?.length > 0) {
+    for (const r of snap.active_responses) {
+      snapshots.push({
+        hook_id: `world_resp_${r.type}`,
+        module: 'p3_world',
+        metric: r.type,
+        value: r.intensity,
+        threshold: 5,
+        status: r.intensity > 7 ? 'warning' : 'ok',
+        message: r.description,
+        timestamp_ms: nowMs(),
+      });
+    }
+  }
+
+  return snapshots;
+}
+
 // ============================================================
 // 全量采样 + 存储
 // ============================================================
@@ -369,6 +668,21 @@ export function runAllHooks(weather: string, temperature: number): HookSnapshot[
 
   // 自我实体
   allSnapshots.push(...hookSelfStatus());
+
+  // P1: 经济/社交/饮食
+  allSnapshots.push(...hookEconomic());
+  allSnapshots.push(...hookSocial());
+  allSnapshots.push(...hookDiet());
+
+  // P2: 仪式/信息/梦境
+  allSnapshots.push(...hookRituals());
+  allSnapshots.push(...hookInformation());
+  allSnapshots.push(...hookDream());
+
+  // P3: 叙事/三体联动/世界回应
+  allSnapshots.push(...hookNarrative());
+  allSnapshots.push(...hookTriBodyLinkage());
+  allSnapshots.push(...hookWorldResponse());
 
   // 存入数据库（使用实际 DB 列：module, event, severity, detail_json, timestamp_ms）
   const db = getDb();

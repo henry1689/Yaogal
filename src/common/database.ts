@@ -258,6 +258,160 @@ function createTables(): void {
       created_at TEXT NOT NULL DEFAULT (datetime('now'))
     )
   `);
+
+  // ===== P1 表：经济感知 =====
+  d.exec(`
+    CREATE TABLE IF NOT EXISTS economic_state (
+      id INTEGER PRIMARY KEY CHECK (id = 1),
+      net_worth REAL NOT NULL DEFAULT 50000,
+      daily_spend REAL NOT NULL DEFAULT 0,
+      monthly_income REAL NOT NULL DEFAULT 0,
+      monthly_expense REAL NOT NULL DEFAULT 0,
+      financial_security REAL NOT NULL DEFAULT 70,
+      desire_tension REAL NOT NULL DEFAULT 30,
+      consumption_records_json TEXT DEFAULT '[]',
+      updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+    )
+  `);
+  d.exec(`INSERT OR IGNORE INTO economic_state (id) VALUES (1)`);
+
+  // ===== P1 表：社交状态 =====
+  d.exec(`
+    CREATE TABLE IF NOT EXISTS social_state (
+      node_id TEXT PRIMARY KEY,
+      name TEXT NOT NULL,
+      type TEXT NOT NULL,
+      warmth REAL NOT NULL DEFAULT 50,
+      energy REAL NOT NULL DEFAULT 50,
+      last_contact INTEGER NOT NULL,
+      contact_frequency INTEGER NOT NULL DEFAULT 7,
+      updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+    )
+  `);
+
+  // ===== P1 表：饮食状态 =====
+  d.exec(`
+    CREATE TABLE IF NOT EXISTS diet_state (
+      id INTEGER PRIMARY KEY CHECK (id = 1),
+      hunger REAL NOT NULL DEFAULT 30,
+      satiety REAL NOT NULL DEFAULT 70,
+      last_meal_time INTEGER NOT NULL DEFAULT 0,
+      ts INTEGER NOT NULL
+    )
+  `);
+  d.exec(`INSERT OR IGNORE INTO diet_state (id, ts) VALUES (1, unixepoch())`);
+
+  d.exec(`
+    CREATE TABLE IF NOT EXISTS diet_log (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      type TEXT NOT NULL,
+      name TEXT NOT NULL,
+      amount REAL NOT NULL,
+      hunger_before REAL NOT NULL,
+      hunger_after REAL NOT NULL,
+      taste_profile TEXT NOT NULL DEFAULT '{}',
+      satisfaction REAL NOT NULL,
+      ts INTEGER NOT NULL
+    )
+  `);
+
+  d.exec(`
+    CREATE TABLE IF NOT EXISTS taste_preferences (
+      taste TEXT PRIMARY KEY,
+      weight REAL NOT NULL DEFAULT 1,
+      updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+    )
+  `);
+
+  // ===== P2 表：仪式与习惯 =====
+  d.exec(`
+    CREATE TABLE IF NOT EXISTS ritual_state (
+      ritual_id TEXT PRIMARY KEY,
+      name TEXT NOT NULL,
+      last_executed INTEGER NOT NULL DEFAULT 0,
+      streak INTEGER NOT NULL DEFAULT 0,
+      updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+    )
+  `);
+
+  d.exec(`
+    CREATE TABLE IF NOT EXISTS habit_track (
+      habit_id TEXT PRIMARY KEY,
+      name TEXT NOT NULL,
+      current_streak INTEGER NOT NULL DEFAULT 0,
+      longest_streak INTEGER NOT NULL DEFAULT 0,
+      status TEXT NOT NULL DEFAULT 'active',
+      last_check INTEGER NOT NULL DEFAULT 0,
+      total_completions INTEGER NOT NULL DEFAULT 0,
+      updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+    )
+  `);
+
+  // ===== P2 表：梦境日志 =====
+  d.exec(`
+    CREATE TABLE IF NOT EXISTS dream_log (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      date TEXT NOT NULL,
+      rem_cycle INTEGER NOT NULL,
+      content TEXT NOT NULL,
+      emotion_tags TEXT NOT NULL DEFAULT '[]',
+      vividness REAL NOT NULL DEFAULT 50,
+      remembered INTEGER NOT NULL DEFAULT 0,
+      ts INTEGER NOT NULL
+    )
+  `);
+
+  // ===== P3 表：叙事引擎 =====
+  d.exec(`
+    CREATE TABLE IF NOT EXISTS event_log (
+      event_id TEXT PRIMARY KEY,
+      timestamp INTEGER NOT NULL,
+      category TEXT NOT NULL,
+      summary TEXT NOT NULL,
+      valence TEXT NOT NULL DEFAULT 'neutral',
+      intensity REAL NOT NULL DEFAULT 50,
+      ts INTEGER NOT NULL
+    )
+  `);
+
+  d.exec(`
+    CREATE TABLE IF NOT EXISTS daily_narrative (
+      date TEXT PRIMARY KEY,
+      mood_tone TEXT NOT NULL,
+      theme TEXT NOT NULL,
+      highlight TEXT NOT NULL,
+      lesson TEXT NOT NULL DEFAULT '',
+      event_count INTEGER NOT NULL DEFAULT 0,
+      ts INTEGER NOT NULL DEFAULT 0
+    )
+  `);
+
+  // ===== P3 表：世界被动回应 =====
+  d.exec(`
+    CREATE TABLE IF NOT EXISTS env_state (
+      id INTEGER PRIMARY KEY CHECK (id = 1),
+      air_quality REAL NOT NULL DEFAULT 85,
+      natural_light REAL NOT NULL DEFAULT 80,
+      room_tidiness REAL NOT NULL DEFAULT 75,
+      indoor_humidity REAL NOT NULL DEFAULT 55,
+      dust_level REAL NOT NULL DEFAULT 15,
+      clutter_level REAL NOT NULL DEFAULT 20,
+      plant_health REAL NOT NULL DEFAULT 90,
+      ts INTEGER NOT NULL
+    )
+  `);
+  d.exec(`INSERT OR IGNORE INTO env_state (id, ts) VALUES (1, unixepoch())`);
+
+  // P1/P2/P3 扩展列（感知快照表）
+  d.exec(`ALTER TABLE perception_snapshots ADD COLUMN economic_json TEXT`);
+  d.exec(`ALTER TABLE perception_snapshots ADD COLUMN social_json TEXT`);
+  d.exec(`ALTER TABLE perception_snapshots ADD COLUMN diet_json TEXT`);
+  d.exec(`ALTER TABLE perception_snapshots ADD COLUMN rituals_json TEXT`);
+  d.exec(`ALTER TABLE perception_snapshots ADD COLUMN info_json TEXT`);
+  d.exec(`ALTER TABLE perception_snapshots ADD COLUMN dream_json TEXT`);
+  d.exec(`ALTER TABLE perception_snapshots ADD COLUMN narrative_json TEXT`);
+  d.exec(`ALTER TABLE perception_snapshots ADD COLUMN tri_body_json TEXT`);
+  d.exec(`ALTER TABLE perception_snapshots ADD COLUMN world_passive_json TEXT`);
 }
 
 export function closeDatabase(): void {

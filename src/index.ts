@@ -19,6 +19,15 @@ import { runAllHooks } from './runtime_monitor/world_hooks/hook_service';
 import { initSelfEntity, selfEntityTick, getSelfState } from './self_entity/self_entity_service';
 import { initActionSystem, tickActionSystem, getActiveActions, getConsequenceQueueStats } from './creature_law/action_system/action_system';
 import { initGapEngine, tickGapEngine } from './creature_law/gap_engine/gap_engine';
+import { initEconomicSense, economicTick } from './perception_seven/economic_perception/economic_sense';
+import { initSocialSense, socialTick } from './perception_seven/social_perception/social_sense';
+import { initDietSense, dietTick } from './perception_seven/diet_perception/diet_sense';
+import { initRituals, ritualTick } from './p2_experience/rituals_habits/rituals_habits';
+import { initInformationSense, infoTick } from './p2_experience/information_sense/information_sense';
+import { initDreamSense, dreamTick, dreamEmotionTick } from './p2_experience/dream_sense/dream_sense';
+import { initNarrativeEngine, narrativeTick } from './p3_narrative_world/narrative_engine/narrative_engine';
+import { initTriBodyLinkage, triBodyTick } from './p3_narrative_world/tri_body_linkage/tri_body_linkage';
+import { initWorldPassiveResponse, worldResponseTick } from './p3_narrative_world/world_passive_response/world_passive_response';
 
 // 主循环配置
 const TICK_INTERVAL_MS = 1000;  // 每秒一个tick
@@ -51,6 +60,21 @@ async function main() {
 
   log('BOOT', '初始化预期落差引擎...');
   initGapEngine();
+
+  log('BOOT', '初始化 P1 感知（经济/社交/饮食）...');
+  initEconomicSense();
+  initSocialSense();
+  initDietSense();
+
+  log('BOOT', '初始化 P2 体验（仪式/信息/梦境）...');
+  initRituals();
+  initInformationSense();
+  initDreamSense();
+
+  log('BOOT', '初始化 P3 叙事世界（叙事/三体联动/世界回应）...');
+  initNarrativeEngine();
+  initTriBodyLinkage();
+  initWorldPassiveResponse();
 
   // === 启动阶段 ===
   log('BOOT', '启动时间服务...');
@@ -98,8 +122,24 @@ function worldLoop() {
     selfEntityTick(dtSeconds);
     tickActionSystem(dtSeconds);
     tickGapEngine(dtSeconds);
+
+    // P1: 经济/社交/饮食感知
+    economicTick();
+    socialTick();
+    dietTick();
+
+    // P2: 仪式/信息/梦境
+    ritualTick();
+    infoTick();
+    dreamTick();
+    dreamEmotionTick();
+
+    // P3: 叙事/三体联动/世界回应
+    narrativeTick();
+    triBodyTick();
+    worldResponseTick();
   } catch (err) {
-    log('ERROR', `物理/化学/自我tick异常: ${err}`);
+    log('ERROR', `模块tick异常: ${err}`);
   }
 
   // 2. Hook采样
