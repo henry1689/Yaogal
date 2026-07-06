@@ -1,0 +1,47 @@
+# PersonalWorld 配置文件
+project:
+  name: "PersonalWorld"
+  version: "0.1.0"
+  data_dir: "./data"
+
+# SQLite 数据库
+database:
+  path: "./data/world_runtime.db"
+  wal_mode: true
+
+# 和风天气 API
+weather:
+  api_key: ""           # 填入和风天气 API Key
+  city_id: ""           # 城市 LocationID
+  cache_ttl_minutes: 30
+  night_quiet_hours: "00:00-06:00"
+  rate_limit_per_hour: 100
+
+# 亲密感知引擎
+intimacy:
+  enabled: false         # 开发阶段默认关闭
+  encryption_key: ""     # AES-256 密钥，用户自设
+  data_path: "./data/intimacy.db"
+  auto_learn: true
+
+# WebSocket 对外接口
+websocket:
+  port: 9528
+  max_connections: 1
+
+# HTTP 行为接口
+http:
+  port: 9529
+  max_body_size: "1mb"
+
+# 运维监控
+monitor:
+  daily_report_time: "01:00"
+  report_output_dir: "./reports"
+  hook_log_dir: "./logs/hooks"
+
+# 时间规则（铁律）
+time_rules:
+  flow_direction: "forward_only"    # 单向不可逆
+  sync_source: "system_clock"       # 跟随系统时钟
+  timezone: "Asia/Shanghai"

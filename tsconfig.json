@@ -1,0 +1,33 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "commonjs",
+    "lib": ["ES2022"],
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "moduleResolution": "node",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"],
+      "@common/*": ["src/common/*"],
+      "@core_bus/*": ["src/core_bus/*"],
+      "@perception_space/*": ["src/perception_space/*"],
+      "@natural_env/*": ["src/natural_env/*"],
+      "@creature_law/*": ["src/creature_law/*"],
+      "@simple_physics/*": ["src/simple_physics/*"],
+      "@perception_seven/*": ["src/perception_seven/*"],
+      "@runtime_monitor/*": ["src/runtime_monitor/*"],
+      "@external_api/*": ["src/external_api/*"]
+    }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "tests"]
+}
