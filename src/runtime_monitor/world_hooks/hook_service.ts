@@ -300,18 +300,31 @@ export function runAllHooks(weather: string, temperature: number): HookSnapshot[
   // 环境
   allSnapshots.push(...hookEnvironment(weather, temperature));
 
-  // 存入数据库
+  // 存入数据库（使用实际 DB 列：module, event, severity, detail_json, timestamp_ms）
   const db = getDb();
+  const severityMap: Record<string, string> = {
+    ok: 'info',
+    warning: 'warning',
+    critical: 'error',
+  };
   const insert = db.prepare(`
-    INSERT INTO hook_log (hook_id, module, metric, value, threshold, status, message, timestamp_ms)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO hook_log (timestamp_ms, module, event, severity, detail_json)
+    VALUES (?, ?, ?, ?, ?)
   `);
 
   const tx = db.transaction(() => {
     for (const snap of allSnapshots) {
       insert.run(
-        snap.hook_id, snap.module, snap.metric, snap.value,
-        snap.threshold, snap.status, snap.message, snap.timestamp_ms
+        snap.timestamp_ms,
+        snap.module,
+        snap.hook_id,
+        severityMap[snap.status] || 'info',
+        JSON.stringify({
+          metric: snap.metric,
+          value: snap.value,
+          threshold: snap.threshold,
+          message: snap.message,
+        })
       );
     }
   });
@@ -326,16 +339,20 @@ export function getRecentHookLogs(limit: number = 20): HookSnapshot[] {
     'SELECT * FROM hook_log ORDER BY timestamp_ms DESC LIMIT ?'
   ).all(limit) as any[];
 
-  return rows.map(r => ({
-    hook_id: r.hook_id,
-    module: r.module,
-    metric: r.metric,
-    value: r.value,
-    threshold: r.threshold,
-    status: r.status,
-    message: r.message,
-    timestamp_ms: r.timestamp_ms,
-  }));
+  return rows.map(r => {
+    let detail: any = {};
+    try { detail = JSON.parse(r.detail_json || '{}'); } catch (_) {}
+    return {
+      hook_id: r.event,
+      module: r.module,
+      metric: detail.metric || '',
+      value: detail.value ?? 0,
+      threshold: detail.threshold ?? 0,
+      status: r.severity === 'error' ? 'critical' : (r.severity === 'warning' ? 'warning' : 'ok'),
+      message: detail.message || '',
+      timestamp_ms: r.timestamp_ms,
+    };
+  });
 }
 
 /** 获取Hook统计摘要 */

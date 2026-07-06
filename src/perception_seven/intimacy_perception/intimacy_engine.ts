@@ -265,7 +265,10 @@ export function applyTouch(event: TouchEvent): any {
   // 8. 行为阶段演进
   updatePhase();
 
-  // 9. 生成反馈
+  // 9. 学习伴侣偏好
+  learnTouchPreference(event, pleasureDelta);
+
+  // 10. 生成反馈
   const feedback = generateTouchFeedback(event, part, pleasureDelta);
 
   // 通知事件总线
@@ -308,6 +311,13 @@ function updatePhase(): void {
     currentPhase = IntimacyPhase.ORGASM_PHASE;
     orgasmPhase = OrgasmPhase.ORGASM;
     triggerOrgasm();
+  }
+
+  // 高潮后 → 消退过渡
+  if (orgasmPhase === OrgasmPhase.ORGASM && orgasmCount > 0 && pleasureIntensity > 90) {
+    // 一次高潮后逐渐回落
+    orgasmPhase = OrgasmPhase.RESOLUTION;
+    arousalLevel = clamp(arousalLevel - 15, 0, 100);
   }
 
   // 消退检测

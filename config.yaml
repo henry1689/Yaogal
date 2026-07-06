@@ -15,14 +15,14 @@ weather:
   jwt_sub: "392G29C5UU"
   jwt_private_key_path: "./qweather-ed25519.pem"
   api_host: "https://k23fc3cb4e.re.qweatherapi.com"
-  city_id: ""
+  city_id: "101280601"
   cache_ttl_minutes: 30
   night_quiet_hours: "00:00-06:00"
   rate_limit_per_hour: 100
 
 # 亲密感知引擎
 intimacy:
-  enabled: false
+  enabled: true
   encryption_key: ""
   data_path: "./data/intimacy.db"
   auto_learn: true
