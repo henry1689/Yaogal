@@ -215,6 +215,36 @@ function createTables(): void {
     )
   `);
 
+  // ===== 表：自我实体状态 =====
+  d.exec(`
+    CREATE TABLE IF NOT EXISTS self_state (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      tick INTEGER NOT NULL,
+      timestamp TEXT NOT NULL DEFAULT (datetime('now','localtime')),
+      posture TEXT NOT NULL DEFAULT 'sit',
+      action TEXT NOT NULL DEFAULT 'idle',
+      gaze_direction TEXT DEFAULT 'forward',
+      clothing_state TEXT DEFAULT 'casual',
+      limb_fatigue_json TEXT DEFAULT '{}',
+      current_scene TEXT NOT NULL DEFAULT 'home',
+      position_x REAL DEFAULT 0,
+      position_y REAL DEFAULT 0,
+      position_z REAL DEFAULT 0,
+      facing REAL DEFAULT 0,
+      velocity REAL DEFAULT 0,
+      focus_target TEXT DEFAULT NULL,
+      focus_intensity REAL DEFAULT 0.5,
+      distraction_threshold REAL DEFAULT 0.3,
+      energy REAL DEFAULT 100,
+      fatigue REAL DEFAULT 0,
+      hunger REAL DEFAULT 0,
+      mood_baseline REAL DEFAULT 50,
+      health REAL DEFAULT 100,
+      last_behavior TEXT DEFAULT NULL,
+      state_tags TEXT DEFAULT NULL
+    )
+  `);
+
   // ===== 表：每日体检报告 =====
   d.exec(`
     CREATE TABLE IF NOT EXISTS daily_reports (

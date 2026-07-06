@@ -11,6 +11,7 @@ import { getSceneObjects, getObjectById } from '../../perception_space/spatial_o
 import { getFallingObjects, getSlidingObjects, getJumpState } from '../../simple_physics/basic_gravity/gravity_service';
 import { getAllCoolingStates, getFoodFreshness, getTeaState, getBurnState } from '../../simple_physics/simple_chem/chem_service';
 import { getHeldObject } from '../../simple_physics/force_interact/force_service';
+import { getSelfState } from '../../self_entity/self_entity_service';
 
 // ============================================================
 // Hook 类型
@@ -282,6 +283,72 @@ function hookEnvironment(weather: string, temperature: number): HookSnapshot[] {
   return snapshots;
 }
 
+/** Hook 7: 自我实体状态检查 */
+function hookSelfStatus(): HookSnapshot[] {
+  const self = getSelfState();
+  const snapshots: HookSnapshot[] = [];
+
+  // 整体状态摘要
+  snapshots.push({
+    hook_id: 'self_summary',
+    module: 'self_entity',
+    metric: 'energy',
+    value: self.energy,
+    threshold: 20,
+    status: self.energy < 20 ? 'warning' : 'ok',
+    message: `精力${self.energy.toFixed(0)} 疲劳${self.fatigue.toFixed(0)} 饥饿${self.hunger.toFixed(0)} 情绪${self.mood_baseline.toFixed(0)}`,
+    timestamp_ms: nowMs(),
+  });
+
+  // 疲劳告警
+  if (self.fatigue > 70) {
+    snapshots.push({
+      hook_id: 'self_fatigue',
+      module: 'self_entity',
+      metric: 'fatigue',
+      value: self.fatigue,
+      threshold: 70,
+      status: 'warning',
+      message: `重度疲劳: ${self.fatigue.toFixed(0)}，建议休息`,
+      timestamp_ms: nowMs(),
+    });
+  }
+
+  // 饥饿告警
+  if (self.hunger > 60) {
+    snapshots.push({
+      hook_id: 'self_hunger',
+      module: 'self_entity',
+      metric: 'hunger',
+      value: self.hunger,
+      threshold: 60,
+      status: self.hunger > 80 ? 'critical' : 'warning',
+      message: `饥饿度 ${self.hunger.toFixed(0)}，需要进食`,
+      timestamp_ms: nowMs(),
+    });
+  }
+
+  // 肢体疲劳
+  const lf = self.limb_fatigue;
+  const lfParts = Object.entries(lf) as [string, number][];
+  for (const [part, value] of lfParts) {
+    if (value > 60) {
+      snapshots.push({
+        hook_id: `self_limb_${part}`,
+        module: 'self_entity',
+        metric: `limb_fatigue_${part}`,
+        value,
+        threshold: 60,
+        status: 'warning',
+        message: `${part} 疲劳度 ${value.toFixed(0)}%`,
+        timestamp_ms: nowMs(),
+      });
+    }
+  }
+
+  return snapshots;
+}
+
 // ============================================================
 // 全量采样 + 存储
 // ============================================================
@@ -299,6 +366,9 @@ export function runAllHooks(weather: string, temperature: number): HookSnapshot[
 
   // 环境
   allSnapshots.push(...hookEnvironment(weather, temperature));
+
+  // 自我实体
+  allSnapshots.push(...hookSelfStatus());
 
   // 存入数据库（使用实际 DB 列：module, event, severity, detail_json, timestamp_ms）
   const db = getDb();

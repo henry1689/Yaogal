@@ -89,6 +89,14 @@ export const WorldEvents = {
   INTIMACY_STATE_CHANGED: 'intimacy:state_changed',
   INTIMACY_CHEMISTRY_CHANGED: 'intimacy:chemistry_changed',
 
+  // 自我实体事件
+  SELF_POSTURE_CHANGED: 'self:posture_changed',
+  SELF_ACTION_CHANGED: 'self:action_changed',
+  SELF_SCENE_CHANGED: 'self:scene_changed',
+  SELF_MOVED: 'self:moved',
+  SELF_FOCUS_CHANGED: 'self:focus_changed',
+  SELF_STATE_TICK: 'self:state_tick',
+
   // 监控事件
   HOOK_TRIGGERED: 'hook:triggered',
   DAILY_REPORT_READY: 'monitor:daily_report_ready',
