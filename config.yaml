@@ -1,7 +1,7 @@
 # PersonalWorld 配置文件
 project:
   name: "瑶光 Yaogal"
-  version: "0.1.0"
+  version: "0.2.0"
   data_dir: "./data"
 
 # SQLite 数据库
@@ -9,18 +9,21 @@ database:
   path: "./data/world_runtime.db"
   wal_mode: true
 
-# 和风天气 API
+# 和风天气 API — JWT Ed25519 认证
 weather:
-  api_key: ""           # 填入和风天气 API Key
-  city_id: ""           # 城市 LocationID
+  jwt_kid: "T5PU4C7RP3"
+  jwt_sub: "392G29C5UU"
+  jwt_private_key_path: "./qweather-ed25519.pem"
+  api_host: "https://k23fc3cb4e.re.qweatherapi.com"
+  city_id: ""
   cache_ttl_minutes: 30
   night_quiet_hours: "00:00-06:00"
   rate_limit_per_hour: 100
 
 # 亲密感知引擎
 intimacy:
-  enabled: false         # 开发阶段默认关闭
-  encryption_key: ""     # AES-256 密钥，用户自设
+  enabled: false
+  encryption_key: ""
   data_path: "./data/intimacy.db"
   auto_learn: true
 
@@ -42,6 +45,6 @@ monitor:
 
 # 时间规则（铁律）
 time_rules:
-  flow_direction: "forward_only"    # 单向不可逆
-  sync_source: "system_clock"       # 跟随系统时钟
+  flow_direction: "forward_only"
+  sync_source: "system_clock"
   timezone: "Asia/Shanghai"

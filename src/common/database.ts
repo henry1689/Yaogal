@@ -73,7 +73,43 @@ function createTables(): void {
       aqi INTEGER,
       visibility REAL,
       pressure REAL,
+      precip REAL DEFAULT 0,
+      cloud TEXT,
+      dew_point REAL,
       is_cached INTEGER NOT NULL DEFAULT 0
+    )
+  `);
+
+  // ===== 表：天气预报（3天） =====
+  d.exec(`
+    CREATE TABLE IF NOT EXISTS weather_forecast (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      timestamp_ms INTEGER NOT NULL,
+      day_offset INTEGER NOT NULL,
+      temp_max REAL,
+      temp_min REAL,
+      day_text TEXT,
+      night_text TEXT,
+      wind_dir_day TEXT,
+      wind_scale_day TEXT,
+      humidity INTEGER,
+      precip REAL,
+      uv_index INTEGER
+    )
+  `);
+
+  // ===== 表：灾害预警 =====
+  d.exec(`
+    CREATE TABLE IF NOT EXISTS weather_warnings (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      timestamp_ms INTEGER NOT NULL,
+      warning_id TEXT NOT NULL,
+      title TEXT,
+      level TEXT,
+      type_name TEXT,
+      text TEXT,
+      start_time TEXT,
+      end_time TEXT
     )
   `);
 

@@ -92,8 +92,8 @@ function worldLoop() {
     try {
       const weather = getCurrentWeather();
       const snaps = runAllHooks(
-        weather?.weather_text ?? '晴',
-        weather?.temperature ?? 25
+        weather?.text ?? '晴',
+        parseFloat(weather?.temp ?? '25')
       );
       lastHookMs = nowMs();
 

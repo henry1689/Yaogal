@@ -8,3 +8,4 @@ logs/
 *.db-wal
 .env
 config.local.yaml
+qweather-ed25519.pem

@@ -67,9 +67,9 @@ function buildWorldSnapshot(): any {
       is_daytime: worldTime.is_daytime === 1,
     } : null,
     weather: weather ? {
-      temperature: weather.temperature, feels_like: weather.feels_like,
-      humidity: weather.humidity, wind_speed: weather.wind_speed,
-      weather_desc: weather.weather_desc,
+      temperature: parseFloat(weather.temp), feels_like: parseFloat(weather.feelsLike),
+      humidity: parseInt(weather.humidity), wind_speed: parseFloat(weather.windSpeed),
+      weather_desc: weather.text, wind_dir: weather.windDir, pressure: parseFloat(weather.pressure),
     } : null,
     physio: physio ? {
       health_score: (physio as any).health_score,
