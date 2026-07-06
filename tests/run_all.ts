@@ -17,6 +17,7 @@ const unitTests = [
   'tests/physio_service.test.ts',
   'tests/gravity_chem.test.ts',
   'tests/intimacy_engine.test.ts',
+  'tests/sexual_organ.test.ts',
 ];
 
 const integrationTests = [

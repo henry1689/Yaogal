@@ -28,6 +28,11 @@ import { initDreamSense, dreamTick, dreamEmotionTick } from './p2_experience/dre
 import { initNarrativeEngine, narrativeTick } from './p3_narrative_world/narrative_engine/narrative_engine';
 import { initTriBodyLinkage, triBodyTick } from './p3_narrative_world/tri_body_linkage/tri_body_linkage';
 import { initWorldPassiveResponse, worldResponseTick } from './p3_narrative_world/world_passive_response/world_passive_response';
+import {
+  initSexualOrganPhysiology,
+  sexualOrganTick,
+  getSexualOrganSnapshot,
+} from './intimacy_extension/sexual_organ_physiology';
 
 // 主循环配置
 const TICK_INTERVAL_MS = 1000;  // 每秒一个tick
@@ -75,6 +80,9 @@ async function main() {
   initNarrativeEngine();
   initTriBodyLinkage();
   initWorldPassiveResponse();
+
+  log('BOOT', '初始化性器官生理模型...');
+  initSexualOrganPhysiology();
 
   // === 启动阶段 ===
   log('BOOT', '启动时间服务...');
@@ -138,6 +146,9 @@ function worldLoop() {
     narrativeTick();
     triBodyTick();
     worldResponseTick();
+
+    // 性器官生理tick
+    sexualOrganTick(dtSeconds);
   } catch (err) {
     log('ERROR', `模块tick异常: ${err}`);
   }

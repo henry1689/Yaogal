@@ -21,6 +21,7 @@ import { getDreamSnapshot } from '../p2_experience/dream_sense/dream_sense';
 import { getNarrativeSnapshot } from '../p3_narrative_world/narrative_engine/narrative_engine';
 import { getTriBodySnapshot } from '../p3_narrative_world/tri_body_linkage/tri_body_linkage';
 import { getWorldResponseSnapshot } from '../p3_narrative_world/world_passive_response/world_passive_response';
+import { getSexualOrganSnapshot } from '../intimacy_extension/sexual_organ_physiology';
 
 let perceptionTimer: NodeJS.Timeout | null = null;
 
@@ -62,6 +63,7 @@ function generateSnapshot(): any {
     narrative: getNarrativeSnapshot(),
     tri_body: getTriBodySnapshot(),
     world_passive: getWorldResponseSnapshot(),
+    sexual_organs: getSexualOrganSnapshot(),
   };
 }
 

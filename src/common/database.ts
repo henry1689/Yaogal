@@ -402,6 +402,17 @@ function createTables(): void {
   `);
   d.exec(`INSERT OR IGNORE INTO env_state (id, ts) VALUES (1, unixepoch())`);
 
+  d.exec(`
+    CREATE TABLE IF NOT EXISTS sexual_organ_state (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      tick INTEGER NOT NULL,
+      timestamp TEXT NOT NULL,
+      female_json TEXT NOT NULL DEFAULT '{}',
+      male_json TEXT NOT NULL DEFAULT '{}'
+    )
+  `);
+  d.exec(`CREATE INDEX IF NOT EXISTS idx_sexual_organ_tick ON sexual_organ_state(tick)`);
+
   // P1/P2/P3 扩展列（感知快照表）——幂等：已存在则跳过
   const existingCols = d.prepare("PRAGMA table_info(perception_snapshots)").all() as {name: string}[];
   const colNames = new Set(existingCols.map(c => c.name));
