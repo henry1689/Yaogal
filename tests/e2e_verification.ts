@@ -13,7 +13,7 @@ import axios from 'axios';
 import * as yaml from 'yaml';
 
 const CONFIG_PATH = path.resolve(__dirname, '../config.yaml');
-const JWT_KID = 'T5PU4C7RP3';
+const JWT_KID = 'CGWFMKD2KC';
 const JWT_SUB = '392G29C5UU';
 const API_HOST = 'https://k23fc3cb4e.re.qweatherapi.com';
 const CITY_ID = '101280601';
@@ -134,7 +134,7 @@ async function testQWeatherAPI(): Promise<void> {
   // 5. 城市检索 API
   try {
     const jwt4 = regenerateJWT(privPem);
-    const resCity = await axios.get(`${API_HOST}/v2/city/lookup`, {
+    const resCity = await axios.get(`${API_HOST}/geo/v2/city/lookup`, {
       params: { location: '深圳' },
       headers: { Authorization: `Bearer ${jwt4}` },
       timeout: 10000,

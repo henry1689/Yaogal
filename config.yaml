@@ -11,7 +11,7 @@ database:
 
 # 和风天气 API — JWT Ed25519 认证
 weather:
-  jwt_kid: "T5PU4C7RP3"
+  jwt_kid: "CGWFMKD2KC"
   jwt_sub: "392G29C5UU"
   jwt_private_key_path: "./qweather-ed25519.pem"
   api_host: "https://k23fc3cb4e.re.qweatherapi.com"

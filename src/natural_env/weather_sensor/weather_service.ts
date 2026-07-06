@@ -354,7 +354,7 @@ export function isApiAvailable(): boolean {
 /** 城市ID查询（用于用户输入城市名获取LocationID） */
 export async function cityLookup(cityName: string): Promise<{ id: string; name: string }[]> {
   try {
-    const data = await apiGet<any>('/v2/city/lookup', { location: cityName });
+    const data = await apiGet<any>('/geo/v2/city/lookup', { location: cityName });
     return (data.location || []).map((l: any) => ({ id: l.id, name: `${l.name}, ${l.adm1}, ${l.country}` }));
   } catch (err: any) {
     log('WEATHER', `城市查询失败: ${err.message}`);
