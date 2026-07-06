@@ -120,7 +120,7 @@ function physioTick(): void {
 /** 触发伤病 */
 export function applyInjury(type: string, severity: 1|2|3): void {
   const db = getDb();
-  const healDays = severity === 1 ? 3 : severity === 2 ? 14 : 60;
+  const healDays = severity === 1 ? 3 : severity === 2 ? 7 : 30;
   const healDurationMs = healDays * 24 * 60 * 60 * 1000;
   
   db.prepare(`
