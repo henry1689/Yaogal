@@ -17,6 +17,8 @@ import { physicsTick } from './simple_physics/basic_gravity/gravity_service';
 import { chemistryTick } from './simple_physics/simple_chem/chem_service';
 import { runAllHooks } from './runtime_monitor/world_hooks/hook_service';
 import { initSelfEntity, selfEntityTick, getSelfState } from './self_entity/self_entity_service';
+import { initActionSystem, tickActionSystem, getActiveActions, getConsequenceQueueStats } from './creature_law/action_system/action_system';
+import { initGapEngine, tickGapEngine } from './creature_law/gap_engine/gap_engine';
 
 // 主循环配置
 const TICK_INTERVAL_MS = 1000;  // 每秒一个tick
@@ -43,6 +45,12 @@ async function main() {
 
   log('BOOT', '初始化自我实体...');
   initSelfEntity();
+
+  log('BOOT', '初始化行为系统...');
+  initActionSystem();
+
+  log('BOOT', '初始化预期落差引擎...');
+  initGapEngine();
 
   // === 启动阶段 ===
   log('BOOT', '启动时间服务...');
@@ -88,6 +96,8 @@ function worldLoop() {
     physicsTick(dtSeconds);
     chemistryTick(dtSeconds);
     selfEntityTick(dtSeconds);
+    tickActionSystem(dtSeconds);
+    tickGapEngine(dtSeconds);
   } catch (err) {
     log('ERROR', `物理/化学/自我tick异常: ${err}`);
   }
