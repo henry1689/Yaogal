@@ -402,16 +402,19 @@ function createTables(): void {
   `);
   d.exec(`INSERT OR IGNORE INTO env_state (id, ts) VALUES (1, unixepoch())`);
 
-  // P1/P2/P3 扩展列（感知快照表）
-  d.exec(`ALTER TABLE perception_snapshots ADD COLUMN economic_json TEXT`);
-  d.exec(`ALTER TABLE perception_snapshots ADD COLUMN social_json TEXT`);
-  d.exec(`ALTER TABLE perception_snapshots ADD COLUMN diet_json TEXT`);
-  d.exec(`ALTER TABLE perception_snapshots ADD COLUMN rituals_json TEXT`);
-  d.exec(`ALTER TABLE perception_snapshots ADD COLUMN info_json TEXT`);
-  d.exec(`ALTER TABLE perception_snapshots ADD COLUMN dream_json TEXT`);
-  d.exec(`ALTER TABLE perception_snapshots ADD COLUMN narrative_json TEXT`);
-  d.exec(`ALTER TABLE perception_snapshots ADD COLUMN tri_body_json TEXT`);
-  d.exec(`ALTER TABLE perception_snapshots ADD COLUMN world_passive_json TEXT`);
+  // P1/P2/P3 扩展列（感知快照表）——幂等：已存在则跳过
+  const existingCols = d.prepare("PRAGMA table_info(perception_snapshots)").all() as {name: string}[];
+  const colNames = new Set(existingCols.map(c => c.name));
+  const newCols = [
+    'economic_json', 'social_json', 'diet_json',
+    'rituals_json', 'info_json', 'dream_json',
+    'narrative_json', 'tri_body_json', 'world_passive_json',
+  ];
+  for (const col of newCols) {
+    if (!colNames.has(col)) {
+      d.exec(`ALTER TABLE perception_snapshots ADD COLUMN ${col} TEXT`);
+    }
+  }
 }
 
 export function closeDatabase(): void {

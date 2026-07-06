@@ -77,7 +77,7 @@ runSuite('E2E — 全模块启动流程', () => {
 
   // 验证天气表存在（可能无数据，但表结构完好）
   const weather = getCurrentWeather();
-  console.log(`  天气数据: ${weather ? `${weather.temperature}°C ${weather.weather_desc}` : '无缓存数据（正常）'}`);
+  console.log(`  天气数据: ${weather ? `${weather.temp}°C ${weather.text}` : '无缓存数据（正常）'}`);
 
   // 验证 Hook 探针可运行
   const hookSnapshots = runAllHooks('晴', 25);
