@@ -259,21 +259,22 @@ function createTables(): void {
     )
   `);
 
-  // ===== P1 表：经济感知 =====
+  // ===== P1 表：经济台账（每日一条） =====
   d.exec(`
-    CREATE TABLE IF NOT EXISTS economic_state (
-      id INTEGER PRIMARY KEY CHECK (id = 1),
-      net_worth REAL NOT NULL DEFAULT 50000,
+    CREATE TABLE IF NOT EXISTS economic_ledger (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      date TEXT NOT NULL,
+      asset_total REAL NOT NULL DEFAULT 50000,
       daily_spend REAL NOT NULL DEFAULT 0,
-      monthly_income REAL NOT NULL DEFAULT 0,
-      monthly_expense REAL NOT NULL DEFAULT 0,
+      monthly_change REAL NOT NULL DEFAULT 0,
       financial_security REAL NOT NULL DEFAULT 70,
       desire_tension REAL NOT NULL DEFAULT 30,
-      consumption_records_json TEXT DEFAULT '[]',
-      updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+      spend_categories TEXT DEFAULT '{}',
+      notes TEXT DEFAULT '',
+      ts INTEGER NOT NULL DEFAULT (unixepoch())
     )
   `);
-  d.exec(`INSERT OR IGNORE INTO economic_state (id) VALUES (1)`);
+  d.exec(`CREATE INDEX IF NOT EXISTS idx_economic_ledger_date ON economic_ledger(date)`);
 
   // ===== P1 表：社交状态 =====
   d.exec(`
