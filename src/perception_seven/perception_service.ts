@@ -22,6 +22,10 @@ import { getNarrativeSnapshot } from '../p3_narrative_world/narrative_engine/nar
 import { getTriBodySnapshot } from '../p3_narrative_world/tri_body_linkage/tri_body_linkage';
 import { getWorldResponseSnapshot } from '../p3_narrative_world/world_passive_response/world_passive_response';
 import { getSexualOrganSnapshot } from '../intimacy_extension/sexual_organ_physiology';
+import { getTogetherSnapshot } from '../c3_daily_together/daily_together';
+import { getParentingSnapshot } from '../c4_childbirth_parenting/parenting';
+import { getFamilySnapshot } from '../c5_family/family';
+import { getExtensionSnapshot } from '../c6_personal_extension/personal_extension';
 
 let perceptionTimer: NodeJS.Timeout | null = null;
 
@@ -64,13 +68,17 @@ function generateSnapshot(): any {
     tri_body: getTriBodySnapshot(),
     world_passive: getWorldResponseSnapshot(),
     sexual_organs: getSexualOrganSnapshot(),
+    daily_together: getTogetherSnapshot(),
+    childbirth: getParentingSnapshot(),
+    family: getFamilySnapshot(),
+    personal_extension: getExtensionSnapshot(),
   };
 }
 
 function saveSnapshot(snapshot: any): void {
   getDb().prepare(`
-    INSERT INTO perception_snapshots (timestamp_ms, physical_perception_json, spatial_perception_json, temporal_perception_json, work_perception_json, life_perception_json, world_perception_json, intimacy_perception_json, economic_json, social_json, diet_json, rituals_json, info_json, dream_json, narrative_json, tri_body_json, world_passive_json)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO perception_snapshots (timestamp_ms, physical_perception_json, spatial_perception_json, temporal_perception_json, work_perception_json, life_perception_json, world_perception_json, intimacy_perception_json, economic_json, social_json, diet_json, rituals_json, info_json, dream_json, narrative_json, tri_body_json, world_passive_json, daily_together_json, childbirth_json, family_json, extension_json)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `).run(
     snapshot.timestamp_ms,
     JSON.stringify(snapshot.physical),
@@ -89,6 +97,10 @@ function saveSnapshot(snapshot: any): void {
     JSON.stringify(snapshot.narrative || {}),
     JSON.stringify(snapshot.tri_body || {}),
     JSON.stringify(snapshot.world_passive || {}),
+    JSON.stringify(snapshot.daily_together || {}),
+    JSON.stringify(snapshot.childbirth || {}),
+    JSON.stringify(snapshot.family || {}),
+    JSON.stringify(snapshot.personal_extension || {}),
   );
 }
 

@@ -420,6 +420,7 @@ function createTables(): void {
     'economic_json', 'social_json', 'diet_json',
     'rituals_json', 'info_json', 'dream_json',
     'narrative_json', 'tri_body_json', 'world_passive_json',
+    'daily_together_json', 'childbirth_json', 'family_json', 'extension_json',
   ];
   for (const col of newCols) {
     if (!colNames.has(col)) {

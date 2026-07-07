@@ -648,6 +648,126 @@ function hookWorldResponse(): HookSnapshot[] {
   return snapshots;
 }
 
+/** Hook 17: C3 日常相伴探针 */
+function hookDailyTogether(): HookSnapshot[] {
+  const { getTogetherSnapshot } = require('../../c3_daily_together/daily_together');
+  const snap: any = getTogetherSnapshot();
+  const snapshots: HookSnapshot[] = [];
+  snapshots.push({
+    hook_id: 'daily_summary',
+    module: 'c3_daily_together',
+    metric: 'quality',
+    value: snap.together_quality ?? 50,
+    threshold: 40,
+    status: (snap.together_quality ?? 50) < 40 ? 'warning' : 'ok',
+    message: `日常质量${(snap.together_quality ?? 50).toFixed(0)} 默契${(snap.unspoken_understanding ?? 50).toFixed(0)}`,
+    timestamp_ms: nowMs(),
+  });
+  if (snap.argue_tension > 50) {
+    snapshots.push({
+      hook_id: 'daily_argue',
+      module: 'c3_daily_together',
+      metric: 'argue_tension',
+      value: snap.argue_tension,
+      threshold: 50,
+      status: 'warning',
+      message: `争吵张力: ${snap.argue_tension.toFixed(0)}`,
+      timestamp_ms: nowMs(),
+    });
+  }
+  return snapshots;
+}
+
+/** Hook 18: C4 生育与抚养探针 */
+function hookChildbirth(): HookSnapshot[] {
+  const { getParentingSnapshot } = require('../../c4_childbirth_parenting/parenting');
+  const snap: any = getParentingSnapshot();
+  const snapshots: HookSnapshot[] = [];
+  if (snap.pregnancy_stage === 'active') {
+    snapshots.push({
+      hook_id: 'birth_pregnancy',
+      module: 'c4_childbirth',
+      metric: 'trimester',
+      value: snap.day_of_pregnancy ?? 0,
+      threshold: 270,
+      status: 'ok',
+      message: `孕期第${snap.day_of_pregnancy ?? 0}天 预产期${snap.due_date ?? '?'}`,
+      timestamp_ms: nowMs(),
+    });
+  }
+  snapshots.push({
+    hook_id: 'birth_children',
+    module: 'c4_childbirth',
+    metric: 'child_count',
+    value: snap.children?.length ?? 0,
+    threshold: 0,
+    status: 'ok',
+    message: `子女: ${snap.children?.length ?? 0}人`,
+    timestamp_ms: nowMs(),
+  });
+  return snapshots;
+}
+
+/** Hook 19: C5 家庭探针 */
+function hookFamily(): HookSnapshot[] {
+  const { getFamilySnapshot } = require('../../c5_family/family');
+  const snap: any = getFamilySnapshot();
+  const snapshots: HookSnapshot[] = [];
+  if (parseFloat(snap.domestic_violence_risk) > 30) {
+    snapshots.push({
+      hook_id: 'family_dv_risk',
+      module: 'c5_family',
+      metric: 'domestic_violence_risk',
+      value: parseFloat(snap.domestic_violence_risk),
+      threshold: 30,
+      status: parseFloat(snap.domestic_violence_risk) > 50 ? 'critical' : 'warning',
+      message: `家暴风险: ${snap.domestic_violence_risk}`,
+      timestamp_ms: nowMs(),
+    });
+  }
+  snapshots.push({
+    hook_id: 'family_summary',
+    module: 'c5_family',
+    metric: 'health',
+    value: parseFloat(snap.family_health ?? '75'),
+    threshold: 50,
+    status: (parseFloat(snap.family_health ?? '75') < 50) ? 'warning' : 'ok',
+    message: `家庭健康${snap.family_health} 压力${snap.family_stress}`,
+    timestamp_ms: nowMs(),
+  });
+  return snapshots;
+}
+
+/** Hook 20: C6 个人伸展探针 */
+function hookPersonalExtension(): HookSnapshot[] {
+  const { getExtensionSnapshot } = require('../../c6_personal_extension/personal_extension');
+  const snap: any = getExtensionSnapshot();
+  const snapshots: HookSnapshot[] = [];
+  if (parseFloat(snap.work?.burnout ?? '0') > 60) {
+    snapshots.push({
+      hook_id: 'ext_burnout',
+      module: 'c6_extension',
+      metric: 'burnout',
+      value: parseFloat(snap.work.burnout),
+      threshold: 60,
+      status: 'critical',
+      message: `工作倦怠: ${snap.work.burnout}`,
+      timestamp_ms: nowMs(),
+    });
+  }
+  snapshots.push({
+    hook_id: 'ext_learning',
+    module: 'c6_extension',
+    metric: 'curiosity',
+    value: parseFloat(snap.learning?.curiosity ?? '50'),
+    threshold: 30,
+    status: 'ok',
+    message: `专注:${snap.learning?.current_focus ?? '-'} 进度${snap.work?.progress ?? 0}%`,
+    timestamp_ms: nowMs(),
+  });
+  return snapshots;
+}
+
 // ============================================================
 // 全量采样 + 存储
 // ============================================================
@@ -683,6 +803,12 @@ export function runAllHooks(weather: string, temperature: number): HookSnapshot[
   allSnapshots.push(...hookNarrative());
   allSnapshots.push(...hookTriBodyLinkage());
   allSnapshots.push(...hookWorldResponse());
+
+  // C3-C6: 六圈
+  allSnapshots.push(...hookDailyTogether());
+  allSnapshots.push(...hookChildbirth());
+  allSnapshots.push(...hookFamily());
+  allSnapshots.push(...hookPersonalExtension());
 
   // 存入数据库（使用实际 DB 列：module, event, severity, detail_json, timestamp_ms）
   const db = getDb();

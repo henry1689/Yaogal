@@ -33,6 +33,10 @@ import {
   sexualOrganTick,
   getSexualOrganSnapshot,
 } from './intimacy_extension/sexual_organ_physiology';
+import { initDailyTogether, dailyTogetherTick } from './c3_daily_together/daily_together';
+import { initParenting, parentingTick } from './c4_childbirth_parenting/parenting';
+import { initFamily, familyTick } from './c5_family/family';
+import { initPersonalExtension, personalExtensionTick } from './c6_personal_extension/personal_extension';
 
 // 主循环配置
 const TICK_INTERVAL_MS = 1000;  // 每秒一个tick
@@ -83,6 +87,18 @@ async function main() {
 
   log('BOOT', '初始化性器官生理模型...');
   initSexualOrganPhysiology();
+
+  log('BOOT', '初始化 C3 日常相伴...');
+  initDailyTogether();
+
+  log('BOOT', '初始化 C4 生育与抚养...');
+  initParenting();
+
+  log('BOOT', '初始化 C5 家庭...');
+  initFamily();
+
+  log('BOOT', '初始化 C6 个人伸展...');
+  initPersonalExtension();
 
   // === 启动阶段 ===
   log('BOOT', '启动时间服务...');
@@ -149,6 +165,12 @@ function worldLoop() {
 
     // 性器官生理tick
     sexualOrganTick(dtSeconds);
+
+    // C3-C6: 日常/生育/家庭/个人伸展
+    dailyTogetherTick(dtSeconds);
+    parentingTick(dtSeconds);
+    familyTick(dtSeconds);
+    personalExtensionTick(dtSeconds);
   } catch (err) {
     log('ERROR', `模块tick异常: ${err}`);
   }
